@@ -1,0 +1,213 @@
+openapi: 3.1.0
+info:
+  title: Simple Couriers API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000/api/v1
+paths:
+  /couriers:
+    get:
+      summary: List couriers
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+          example: budi agung
+        - name: level
+          in: query
+          description: Comma-separated courier levels.
+          schema:
+            type: string
+            pattern: '^[1-5](,[1-5])*$'
+          example: 2,3
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [name, registered_at]
+            default: name
+        - name: direction
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 15
+      responses:
+        '200':
+          description: Paginated courier list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCouriers'
+    post:
+      summary: Create a courier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourierWrite'
+      responses:
+        '201':
+          description: Courier created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourierResource'
+        '422':
+          description: Validation failed.
+  /couriers/{courier}:
+    get:
+      summary: Show a courier
+      parameters:
+        - $ref: '#/components/parameters/CourierId'
+      responses:
+        '200':
+          description: Courier detail.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourierResource'
+        '404':
+          description: Courier not found.
+    put:
+      summary: Update a courier
+      parameters:
+        - $ref: '#/components/parameters/CourierId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CourierUpdate'
+      responses:
+        '200':
+          description: Courier updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourierResource'
+        '404':
+          description: Courier not found.
+        '422':
+          description: Validation failed.
+    delete:
+      summary: Delete a courier
+      parameters:
+        - $ref: '#/components/parameters/CourierId'
+      responses:
+        '204':
+          description: Courier deleted.
+        '404':
+          description: Courier not found.
+components:
+  parameters:
+    CourierId:
+      name: courier
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+  schemas:
+    Courier:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: [string, 'null']
+          format: email
+        level:
+          type: integer
+          minimum: 1
+          maximum: 5
+        status:
+          type: string
+          enum: [active, inactive, suspended]
+        vehicle_type:
+          type: [string, 'null']
+          enum: [motorcycle, car, van, bicycle, null]
+        vehicle_plate_number:
+          type: [string, 'null']
+        service_area:
+          type: [string, 'null']
+        registered_at:
+          type: [string, 'null']
+          format: date-time
+        notes:
+          type: [string, 'null']
+        created_at:
+          type: [string, 'null']
+          format: date-time
+        updated_at:
+          type: [string, 'null']
+          format: date-time
+    CourierResource:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Courier'
+    CourierWrite:
+      type: object
+      required: [name, phone, level, status]
+      properties:
+        name:
+          type: string
+          maxLength: 120
+        phone:
+          type: string
+          maxLength: 30
+        email:
+          type: [string, 'null']
+          format: email
+          maxLength: 120
+        level:
+          type: integer
+          minimum: 1
+          maximum: 5
+        status:
+          type: string
+          enum: [active, inactive, suspended]
+        vehicle_type:
+          type: [string, 'null']
+          enum: [motorcycle, car, van, bicycle, null]
+        vehicle_plate_number:
+          type: [string, 'null']
+          maxLength: 20
+        service_area:
+          type: [string, 'null']
+          maxLength: 120
+        registered_at:
+          type: [string, 'null']
+          format: date-time
+        notes:
+          type: [string, 'null']
+          maxLength: 1000
+    CourierUpdate:
+      allOf:
+        - $ref: '#/components/schemas/CourierWrite'
+      required: []
+    PaginatedCouriers:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Courier'
+        links:
+          type: object
+        meta:
+          type: object

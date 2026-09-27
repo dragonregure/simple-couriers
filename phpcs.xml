@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<ruleset name="Simple Couriers">
+    <description>Simple Couriers coding standard.</description>
+
+    <arg name="basepath" value="."/>
+    <arg name="extensions" value="php"/>
+    <arg name="colors"/>
+
+    <file>app</file>
+    <file>routes</file>
+    <file>database</file>
+    <file>tests</file>
+
+    <exclude-pattern>vendor/*</exclude-pattern>
+    <exclude-pattern>bootstrap/cache/*</exclude-pattern>
+    <exclude-pattern>storage/*</exclude-pattern>
+
+    <rule ref="PSR12"/>
+</ruleset>
