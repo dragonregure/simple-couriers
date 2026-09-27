@@ -3,12 +3,26 @@
 namespace Tests\Feature;
 
 use App\Modules\Couriers\Models\Courier;
+use Database\Seeders\CourierSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class CourierApiTest extends TestCase
 {
     use RefreshDatabase;
+
+    public function testRootRedirectsToApiDocumentation(): void
+    {
+        $this->get('/')
+            ->assertRedirect('/api/documentation');
+    }
+
+    public function testCourierSeederCreatesOneThousandDummyCouriers(): void
+    {
+        $this->seed(CourierSeeder::class);
+
+        $this->assertDatabaseCount('couriers', 1000);
+    }
 
     public function testIndexPaginatesSortsByNameByDefaultAndFiltersSearchAndLevel(): void
     {
